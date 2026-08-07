@@ -43,4 +43,10 @@ public class ConversationController {
                         m.getText()))
                 .toList();
     }
+
+    // 대화방 삭제 - DELETE /conversations/{id}
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable String id) {
+        conversationService.deleteConversation(id);
+    }
 }

@@ -100,6 +100,20 @@
         }
         .room .r-time { font-size: 12.5px; color: var(--sub); margin-top: 3px; }
 
+        .room .r-delete {
+            width: 34px; height: 34px;
+            border: none;
+            background: none;
+            color: var(--sub);
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 8px;
+            transition: background 0.12s, color 0.12s;
+        }
+        .room .r-delete:active { background: var(--gray-bg); color: #E5484D; }
+        .room .r-delete svg { width: 19px; height: 19px; }
+
         .empty {
             text-align: center;
             color: var(--sub);
@@ -348,6 +362,17 @@
         </div>
     </div>
 
+    <!-- ===== 삭제 확인 모달 ===== -->
+    <div class="modal-overlay" id="deleteOverlay">
+        <div class="modal">
+            <h3>대화를 삭제할까요?</h3>
+            <p id="deleteMsg" style="font-size:14px; color:var(--sub); line-height:1.5; margin-bottom:18px;"></p>
+            <div class="modal-actions">
+                <button class="btn-cancel" id="deleteCancel">취소</button>
+                <button class="btn-confirm" id="deleteConfirm" style="background:#E5484D;">삭제</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -400,9 +425,25 @@
                 '<div class="r-info">' +
                 '<div class="r-title"></div>' +
                 '<div class="r-time">' + formatTime(r.updatedAt) + '</div>' +
-                '</div>';
+                '</div>' +
+                '<button class="r-delete" aria-label="삭제">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                '<polyline points="3 6 5 6 21 6"></polyline>' +
+                '<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>' +
+                '</svg>' +
+                '</button>';
             div.querySelector('.r-title').textContent = r.title;
-            div.addEventListener('click', () => openRoom(r.id, r.title));
+
+            // 방 클릭 → 입장
+            div.querySelector('.r-info').addEventListener('click', () => openRoom(r.id, r.title));
+            div.querySelector('.r-avatar').addEventListener('click', () => openRoom(r.id, r.title));
+
+            // 삭제 버튼 클릭 → 확인 모달 (입장 이벤트와 분리)
+            div.querySelector('.r-delete').addEventListener('click', (e) => {
+                e.stopPropagation();
+                askDelete(r.id, r.title);
+            });
+
             roomListEl.appendChild(div);
         });
     }
@@ -458,6 +499,42 @@
             alert('대화를 만들지 못했어요.');
         }
     }
+
+    // ===== 방 삭제 =====
+    const deleteOverlay = document.getElementById('deleteOverlay');
+    const deleteMsg = document.getElementById('deleteMsg');
+    let pendingDeleteId = null;
+
+    function askDelete(id, title) {
+        pendingDeleteId = id;
+        deleteMsg.textContent = '"' + title + '" 대화 내용이 모두 삭제되며 되돌릴 수 없어요.';
+        deleteOverlay.classList.add('active');
+    }
+
+    document.getElementById('deleteCancel').addEventListener('click', () => {
+        deleteOverlay.classList.remove('active');
+        pendingDeleteId = null;
+    });
+
+    deleteOverlay.addEventListener('click', (e) => {
+        if (e.target === deleteOverlay) {
+            deleteOverlay.classList.remove('active');
+            pendingDeleteId = null;
+        }
+    });
+
+    document.getElementById('deleteConfirm').addEventListener('click', async () => {
+        if (!pendingDeleteId) return;
+        const id = pendingDeleteId;
+        deleteOverlay.classList.remove('active');
+        pendingDeleteId = null;
+        try {
+            await fetch(API + '/conversations/' + encodeURIComponent(id), { method: 'DELETE' });
+            loadRooms();  // 목록 새로고침
+        } catch (e) {
+            alert('삭제하지 못했어요.');
+        }
+    });
 
     // ===== 방 열기 (지난 대화 복원) =====
     async function openRoom(id, title) {
