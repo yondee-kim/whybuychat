@@ -1,9 +1,8 @@
 package com.whybuy.ai.airouter.chat.controller;
 
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class ChatController {
@@ -15,7 +14,14 @@ public class ChatController {
     }
 
     @GetMapping("/chat")
-    public String chat(@RequestParam String message) {
-        return ollamaClient.prompt().user(message).call().content();
+    public String chat(
+            @RequestParam String message,
+            @RequestParam(defaultValue = "default") String conversationId) {
+        return ollamaClient.prompt()
+                .user(message)
+                // 대화 ID에 따라 이력 매칭
+                .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, conversationId))
+                .call()
+                .content();
     }
 }
