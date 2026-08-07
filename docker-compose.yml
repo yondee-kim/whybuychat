@@ -31,6 +31,8 @@ services:
       SPRING_PROFILES_ACTIVE: local
       OLLAMA_MODEL: llama3.1:latest
       SPRING_AI_OLLAMA_BASE_URL: http://host.docker.internal:11434
+      JWT_SECRET: docker-secret-key-must-be-at-least-32-characters-long
+      JWT_EXPIRATION_MS: 3600000
 
 volumes:
   pgdata:
