@@ -3,3 +3,12 @@ spring:
     name: whybuychat
   profiles:
     active: local
+  h2:
+    console:
+      enabled: true
+  ai:
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: always

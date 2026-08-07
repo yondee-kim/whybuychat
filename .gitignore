@@ -41,3 +41,4 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 .idea/
 application-local.yml
+/data/
