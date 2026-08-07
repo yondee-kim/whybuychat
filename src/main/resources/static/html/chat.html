@@ -232,6 +232,65 @@
         .send-btn:active { transform: scale(0.92); background: var(--blue-deep); }
         .send-btn:disabled { background: var(--line); color: var(--sub); cursor: default; }
         .send-btn svg { width: 21px; height: 21px; }
+
+        /* ===== 모달 ===== */
+        .modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            z-index: 10;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--bg);
+            border-radius: 20px;
+            padding: 24px 20px 20px;
+            width: 100%;
+            max-width: 320px;
+        }
+        .modal h3 {
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: -0.4px;
+            margin-bottom: 16px;
+        }
+        .modal input {
+            width: 100%;
+            border: none;
+            background: var(--gray-bg);
+            border-radius: 12px;
+            padding: 13px 15px;
+            font-size: 15px;
+            font-family: inherit;
+            color: var(--text);
+            outline: none;
+            margin-bottom: 18px;
+            transition: box-shadow 0.15s;
+        }
+        .modal input:focus { box-shadow: 0 0 0 2px var(--blue-soft) inset; }
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .modal-actions button {
+            flex: 1;
+            border: none;
+            border-radius: 12px;
+            padding: 13px;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .btn-cancel { background: var(--gray-bg); color: var(--sub); }
+        .btn-cancel:active { background: var(--line); }
+        .btn-confirm { background: var(--blue); color: #fff; }
+        .btn-confirm:active { background: var(--blue-deep); }
     </style>
 </head>
 <body>
@@ -274,6 +333,18 @@
                     <polyline points="5 12 12 5 19 12"></polyline>
                 </svg>
             </button>
+        </div>
+    </div>
+
+    <!-- ===== 새 방 만들기 모달 ===== -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h3>새 대화 시작</h3>
+            <input type="text" id="roomNameInput" placeholder="대화 이름" maxlength="30" autocomplete="off">
+            <div class="modal-actions">
+                <button class="btn-cancel" id="modalCancel">취소</button>
+                <button class="btn-confirm" id="modalConfirm">만들기</button>
+            </div>
         </div>
     </div>
 
@@ -348,11 +419,37 @@
     }
 
     // ===== 새 방 만들기 =====
-    document.getElementById('newRoomBtn').addEventListener('click', async () => {
-        const title = prompt('대화 이름을 입력하세요', '새 대화');
-        if (title === null) return; // 취소
+    // ===== 새 방 만들기 모달 =====
+    const modalOverlay = document.getElementById('modalOverlay');
+    const roomNameInput = document.getElementById('roomNameInput');
+
+    document.getElementById('newRoomBtn').addEventListener('click', () => {
+        roomNameInput.value = '';
+        modalOverlay.classList.add('active');
+        roomNameInput.focus();
+    });
+
+    document.getElementById('modalCancel').addEventListener('click', () => {
+        modalOverlay.classList.remove('active');
+    });
+
+    // 오버레이 바깥 클릭 시 닫기
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) modalOverlay.classList.remove('active');
+    });
+
+    // 입력창에서 Enter로 확정
+    roomNameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); createRoom(); }
+    });
+
+    document.getElementById('modalConfirm').addEventListener('click', createRoom);
+
+    async function createRoom() {
+        const title = roomNameInput.value.trim() || '새 대화';
+        modalOverlay.classList.remove('active');
         try {
-            const res = await fetch(API + '/conversations?title=' + encodeURIComponent(title || '새 대화'), {
+            const res = await fetch(API + '/conversations?title=' + encodeURIComponent(title), {
                 method: 'POST'
             });
             const room = await res.json();
@@ -360,7 +457,7 @@
         } catch (e) {
             alert('대화를 만들지 못했어요.');
         }
-    });
+    }
 
     // ===== 방 열기 (지난 대화 복원) =====
     async function openRoom(id, title) {
