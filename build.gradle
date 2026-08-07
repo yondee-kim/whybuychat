@@ -23,25 +23,96 @@ ext {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    // ----------------------------------------------------
+    // [Core & Web Framework]
+    // ----------------------------------------------------
+    // Spring MVC 기반 RESTful API 및 Web 애플리케이션 개발 (Tomcat, DispatcherServlet 포함)
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // DTO/Request Entity의 데이터 유효성 검증 (@NotNull, @Size, @Email 등 설정 시 사용)
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+
+    // ----------------------------------------------------
+    // [Spring AI Integration]
+    // ----------------------------------------------------
+    // Anthropic(Claude) LLM 모델연동 시 사용
     //implementation 'org.springframework.ai:spring-ai-starter-model-anthropic'
+
+    // Ollama를 통한 로컬 LLM(Llama, Mistral 등) 모델 연동 및 프롬프트 제어
     implementation 'org.springframework.ai:spring-ai-starter-model-ollama'
+
+    // OpenAI(GPT) LLM 모델 연동 시 사용
     //implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+
+    // AI 대화 이력(Chat History)을 DB(JDBC/JPA)에 영속적으로 저장하고 관리할 때 사용
     implementation 'org.springframework.ai:spring-ai-starter-model-chat-memory-repository-jdbc'
+
+
+    // ----------------------------------------------------
+    // [Database & Persistence]
+    // ----------------------------------------------------
+    // Spring Data JPA 및 Hibernate를 이용한 ORM 데이터베이스 연동
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0'
-    compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    annotationProcessor 'org.projectlombok:lombok'
+
+    // 개발/테스트용 In-Memory RDB (로컬 환경 빠른 테스팅 목적)
     runtimeOnly 'com.h2database:h2'
+
+    // 운영/운영 유사 환경(PostgreSQL) RDB 연동 드라이버
     runtimeOnly 'org.postgresql:postgresql'
+
+
+    // ----------------------------------------------------
+    // [API Documentation]
+    // ----------------------------------------------------
+    // Swagger UI 자동 생성 및 API 명세서 문서화 (/swagger-ui.html)
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0'
+
+
+    // ----------------------------------------------------
+    // [Security & Authentication]
+    // ----------------------------------------------------
+    // 인증/인가, CSRF, 기본 보안 필터 체인 구성
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // JWT 생성, 검증, 파싱을 위한 API 인터페이스
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    // JWT 실제 구현체 (런타임 시 로드)
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    // JWT JSON 직렬화/역직렬화를 위한 Jackson 연동 모듈 (런타임 시 로드)
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+
+    // ----------------------------------------------------
+    // [Developer Tools & Productivity]
+    // ----------------------------------------------------
+    // Getter, Setter, Builder, Logging 등 보일러플레이트 코드 자동 생성
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // 코드 변경 시 서버 자동 재시작(Live Reload) 및 캐시 무효화 등 개발 편의 도구
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+
+    // ----------------------------------------------------
+    // [Testing Environments]
+    // ----------------------------------------------------
+    // JUnit 5, AssertJ, Mockito 등 기본 스프링 부트 통합 테스트 환경
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // Controller 레이어만 슬라이스 테스트할 때 사용 (@WebMvcTest)
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+
+    // JPA Repository 레이어만 슬라이스 테스트할 때 사용 (@DataJpaTest)
     testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+
+    // 테스트 코드 내 Lombok 사용을 위한 설정
     testCompileOnly 'org.projectlombok:lombok'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testAnnotationProcessor 'org.projectlombok:lombok'
+
+    // Gradle 환경에서 JUnit Platform 테스트를 실행하고 론칭하기 위한 엔진
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 dependencyManagement {
