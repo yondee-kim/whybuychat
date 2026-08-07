@@ -38,6 +38,8 @@ dependencies {
     implementation 'org.springframework.ai:spring-ai-starter-model-chat-memory-repository-jdbc'
     // H2 데이터베이스
     runtimeOnly 'com.h2database:h2'
+    // postgreSql
+    runtimeOnly 'org.postgresql:postgresql'
 }
 
 dependencyManagement {
