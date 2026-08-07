@@ -22,12 +22,15 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/chatdb
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: mysecret
       SPRING_PROFILES_ACTIVE: local
       OLLAMA_MODEL: llama3.1:latest
+      SPRING_AI_OLLAMA_BASE_URL: http://host.docker.internal:11434
 
 volumes:
   pgdata:
