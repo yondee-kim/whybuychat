@@ -4,6 +4,7 @@ import com.whybuy.ai.airouter.chat.conversation.entity.Conversation;
 import com.whybuy.ai.airouter.chat.conversation.repository.ConversationRepository;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -42,6 +43,7 @@ public class ConversationService {
     }
 
     // 대화방 삭제 - 방 정보 + 대화 내용 함께 삭제
+    @Transactional
     public void deleteConversation(String conversationId) {
         chatMemory.clear(conversationId);                 // 대화 내용 삭제
         conversationRepository.deleteById(conversationId); // 방 정보 삭제
