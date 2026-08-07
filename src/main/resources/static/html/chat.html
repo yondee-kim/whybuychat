@@ -18,7 +18,6 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
         html, body { height: 100%; }
 
         body {
@@ -42,49 +41,107 @@
             overflow: hidden;
         }
 
+        /* 화면 전환 */
+        .screen { display: none; flex-direction: column; height: 100%; }
+        .screen.active { display: flex; }
+
+        /* ===== 헤더 공통 ===== */
         .header {
             background: var(--bg);
-            padding: 16px 20px;
+            padding: 16px 18px;
             display: flex;
             align-items: center;
             gap: 12px;
             flex-shrink: 0;
             border-bottom: 1px solid var(--line);
         }
-        .header .avatar {
-            width: 40px; height: 40px;
-            border-radius: 12px;
-            background: var(--blue);
+        .header .icon-btn {
+            width: 32px; height: 32px;
+            border: none; background: none;
+            cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 800; font-size: 17px;
-            color: #FFFFFF;
+            color: var(--text);
+            border-radius: 8px;
+        }
+        .header .icon-btn:active { background: var(--gray-bg); }
+        .header .icon-btn svg { width: 22px; height: 22px; }
+        .header .title { flex: 1; font-weight: 700; font-size: 18px; letter-spacing: -0.4px; }
+
+        /* ===== 방 목록 화면 ===== */
+        .room-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+        .room-list::-webkit-scrollbar { width: 0; }
+
+        .room {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 14px 18px;
+            cursor: pointer;
+            transition: background 0.12s;
+        }
+        .room:active { background: var(--gray-bg); }
+        .room .r-avatar {
+            width: 46px; height: 46px;
+            border-radius: 14px;
+            background: var(--blue);
+            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 800; font-size: 15px;
             letter-spacing: -0.5px;
         }
-        .header .info { flex: 1; line-height: 1.35; }
-        .header .info .name { font-weight: 700; font-size: 17px; letter-spacing: -0.4px; }
-        .header .info .status { font-size: 12.5px; color: var(--sub); display: flex; align-items: center; gap: 5px; }
-        .header .info .status::before {
+        .room .r-info { flex: 1; min-width: 0; }
+        .room .r-title {
+            font-weight: 600; font-size: 15.5px; letter-spacing: -0.3px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .room .r-time { font-size: 12.5px; color: var(--sub); margin-top: 3px; }
+
+        .empty {
+            text-align: center;
+            color: var(--sub);
+            font-size: 14px;
+            padding: 60px 20px;
+            line-height: 1.6;
+        }
+
+        .fab {
+            position: absolute;
+            bottom: 24px; right: 20px;
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            background: var(--blue);
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 12px rgba(49,130,246,0.4);
+            transition: transform 0.1s, background 0.15s;
+        }
+        .fab:active { transform: scale(0.92); background: var(--blue-deep); }
+        .fab svg { width: 26px; height: 26px; }
+
+        /* ===== 대화 화면 ===== */
+        .chat-head-info { flex: 1; line-height: 1.3; }
+        .chat-head-info .name { font-weight: 700; font-size: 16px; letter-spacing: -0.4px; }
+        .chat-head-info .status { font-size: 12px; color: var(--sub); display: flex; align-items: center; gap: 5px; }
+        .chat-head-info .status::before {
             content: ''; width: 6px; height: 6px; border-radius: 50%;
-            background: #3182F6; display: inline-block;
+            background: var(--blue); display: inline-block;
         }
 
         .messages {
             flex: 1;
             overflow-y: auto;
-            padding: 20px 16px 8px;
+            padding: 18px 16px 8px;
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
         .messages::-webkit-scrollbar { width: 0; }
-
-        .day-divider {
-            align-self: center;
-            color: var(--sub);
-            font-size: 12px;
-            padding: 4px 12px;
-            margin: 2px 0 8px;
-        }
 
         .row { display: flex; gap: 8px; max-width: 82%; }
         .row.me { align-self: flex-end; flex-direction: row-reverse; }
@@ -95,9 +152,8 @@
             background: var(--blue);
             flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
-            font-size: 12px; font-weight: 800; color: #FFFFFF;
-            margin-top: 2px;
-            letter-spacing: -0.5px;
+            font-size: 12px; font-weight: 800; color: #fff;
+            margin-top: 2px; letter-spacing: -0.5px;
         }
 
         .bubble {
@@ -117,7 +173,7 @@
         }
         .row.me .bubble {
             background: var(--blue);
-            color: #FFFFFF;
+            color: #fff;
             border-top-right-radius: 5px;
             font-weight: 500;
         }
@@ -167,7 +223,7 @@
             border-radius: 50%;
             border: none;
             background: var(--blue);
-            color: #FFFFFF;
+            color: #fff;
             cursor: pointer;
             flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
@@ -175,64 +231,162 @@
         }
         .send-btn:active { transform: scale(0.92); background: var(--blue-deep); }
         .send-btn:disabled { background: var(--line); color: var(--sub); cursor: default; }
-
         .send-btn svg { width: 21px; height: 21px; }
     </style>
 </head>
 <body>
 <div class="app">
-    <div class="header">
-        <div class="avatar">AI</div>
-        <div class="info">
-            <div class="name">스마트 상담</div>
-            <div class="status">응답 가능</div>
-        </div>
-    </div>
 
-    <div class="messages" id="messages">
-        <div class="day-divider">오늘</div>
-        <div class="row bot">
-            <div class="bot-avatar">AI</div>
-            <div class="bubble">안녕하세요. 무엇을 도와드릴까요?</div>
+    <!-- ===== 방 목록 화면 ===== -->
+    <div class="screen active" id="listScreen">
+        <div class="header">
+            <div class="title">대화</div>
         </div>
-    </div>
-
-    <div class="input-bar">
-        <textarea id="input" rows="1" placeholder="메시지 입력" autocomplete="off"></textarea>
-        <button class="send-btn" id="sendBtn" aria-label="전송">
+        <div class="room-list" id="roomList"></div>
+        <button class="fab" id="newRoomBtn" aria-label="새 대화">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="19" x2="12" y2="5"></line>
-                <polyline points="5 12 12 5 19 12"></polyline>
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
         </button>
     </div>
+
+    <!-- ===== 대화 화면 ===== -->
+    <div class="screen" id="chatScreen">
+        <div class="header">
+            <button class="icon-btn" id="backBtn" aria-label="뒤로">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+            <div class="bot-avatar">AI</div>
+            <div class="chat-head-info">
+                <div class="name" id="chatTitle">대화</div>
+                <div class="status">응답 가능</div>
+            </div>
+        </div>
+        <div class="messages" id="messages"></div>
+        <div class="input-bar">
+            <textarea id="input" rows="1" placeholder="메시지 입력" autocomplete="off"></textarea>
+            <button class="send-btn" id="sendBtn" aria-label="전송">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="19" x2="12" y2="5"></line>
+                    <polyline points="5 12 12 5 19 12"></polyline>
+                </svg>
+            </button>
+        </div>
+    </div>
+
 </div>
 
 <script>
-    const API_BASE = '';
-    const conversationId = 'web-' + Date.now();
+    const API = '';
 
+    const listScreen = document.getElementById('listScreen');
+    const chatScreen = document.getElementById('chatScreen');
+    const roomListEl = document.getElementById('roomList');
     const messagesEl = document.getElementById('messages');
     const inputEl = document.getElementById('input');
     const sendBtn = document.getElementById('sendBtn');
+    const chatTitleEl = document.getElementById('chatTitle');
+
+    let currentRoomId = null;
     let streaming = false;
 
-    inputEl.addEventListener('input', () => {
-        inputEl.style.height = 'auto';
-        inputEl.style.height = Math.min(inputEl.scrollHeight, 100) + 'px';
-    });
+    // ===== 화면 전환 =====
+    function showList() {
+        chatScreen.classList.remove('active');
+        listScreen.classList.add('active');
+        loadRooms();
+    }
+    function showChat() {
+        listScreen.classList.remove('active');
+        chatScreen.classList.add('active');
+    }
 
-    inputEl.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            send();
+    // ===== 방 목록 불러오기 =====
+    async function loadRooms() {
+        try {
+            const res = await fetch(API + '/conversations');
+            const rooms = await res.json();
+            renderRooms(rooms);
+        } catch (e) {
+            roomListEl.innerHTML = '<div class="empty">목록을 불러오지 못했어요.<br>잠시 후 다시 시도해 주세요.</div>';
+        }
+    }
+
+    function renderRooms(rooms) {
+        if (!rooms || rooms.length === 0) {
+            roomListEl.innerHTML = '<div class="empty">아직 대화가 없어요.<br>아래 + 버튼으로 새 대화를 시작해 보세요.</div>';
+            return;
+        }
+        roomListEl.innerHTML = '';
+        rooms.forEach(r => {
+            const div = document.createElement('div');
+            div.className = 'room';
+            div.innerHTML =
+                '<div class="r-avatar">AI</div>' +
+                '<div class="r-info">' +
+                '<div class="r-title"></div>' +
+                '<div class="r-time">' + formatTime(r.updatedAt) + '</div>' +
+                '</div>';
+            div.querySelector('.r-title').textContent = r.title;
+            div.addEventListener('click', () => openRoom(r.id, r.title));
+            roomListEl.appendChild(div);
+        });
+    }
+
+    function formatTime(iso) {
+        if (!iso) return '';
+        const d = new Date(iso);
+        const now = new Date();
+        const sameDay = d.toDateString() === now.toDateString();
+        if (sameDay) {
+            return d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+        }
+        return (d.getMonth() + 1) + '월 ' + d.getDate() + '일';
+    }
+
+    // ===== 새 방 만들기 =====
+    document.getElementById('newRoomBtn').addEventListener('click', async () => {
+        const title = prompt('대화 이름을 입력하세요', '새 대화');
+        if (title === null) return; // 취소
+        try {
+            const res = await fetch(API + '/conversations?title=' + encodeURIComponent(title || '새 대화'), {
+                method: 'POST'
+            });
+            const room = await res.json();
+            openRoom(room.id, room.title);
+        } catch (e) {
+            alert('대화를 만들지 못했어요.');
         }
     });
-    sendBtn.addEventListener('click', send);
 
-    function scrollDown() {
-        messagesEl.scrollTop = messagesEl.scrollHeight;
+    // ===== 방 열기 (지난 대화 복원) =====
+    async function openRoom(id, title) {
+        currentRoomId = id;
+        chatTitleEl.textContent = title;
+        messagesEl.innerHTML = '';
+        showChat();
+
+        try {
+            const res = await fetch(API + '/conversations/' + encodeURIComponent(id) + '/messages');
+            const msgs = await res.json();
+            if (msgs.length === 0) {
+                addMessage('안녕하세요. 무엇을 도와드릴까요?', 'bot');
+            } else {
+                msgs.forEach(m => addMessage(m.content, m.role === 'user' ? 'me' : 'bot'));
+            }
+        } catch (e) {
+            addMessage('이전 대화를 불러오지 못했어요.', 'bot');
+        }
+        inputEl.focus();
     }
+
+    document.getElementById('backBtn').addEventListener('click', showList);
+
+    // ===== 메시지 렌더링 =====
+    function scrollDown() { messagesEl.scrollTop = messagesEl.scrollHeight; }
 
     function addMessage(text, who) {
         const row = document.createElement('div');
@@ -255,7 +409,6 @@
     function addTyping() {
         const row = document.createElement('div');
         row.className = 'row bot';
-        row.id = 'typingRow';
         const av = document.createElement('div');
         av.className = 'bot-avatar';
         av.textContent = 'AI';
@@ -269,8 +422,18 @@
         return row;
     }
 
+    // ===== 전송 =====
+    inputEl.addEventListener('input', () => {
+        inputEl.style.height = 'auto';
+        inputEl.style.height = Math.min(inputEl.scrollHeight, 100) + 'px';
+    });
+    inputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+    });
+    sendBtn.addEventListener('click', send);
+
     function send() {
-        if (streaming) return;
+        if (streaming || !currentRoomId) return;
         const text = inputEl.value.trim();
         if (!text) return;
 
@@ -280,12 +443,10 @@
 
         streaming = true;
         sendBtn.disabled = true;
-
         const typingRow = addTyping();
 
-        const url = API_BASE + '/chat/stream?message='
-            + encodeURIComponent(text)
-            + '&conversationId=' + encodeURIComponent(conversationId);
+        const url = API + '/chat/stream?message=' + encodeURIComponent(text)
+            + '&conversationId=' + encodeURIComponent(currentRoomId);
 
         const es = new EventSource(url);
         let botBubble = null;
@@ -312,6 +473,9 @@
             inputEl.focus();
         };
     }
+
+    // ===== 시작 =====
+    loadRooms();
 </script>
 </body>
 </html>
