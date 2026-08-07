@@ -4,6 +4,7 @@ import com.whybuy.ai.airouter.chat.conversation.service.ConversationService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
@@ -22,8 +23,9 @@ public class ChatController {
     @GetMapping("/chat")
     public String chat(
             @RequestParam String message,
-            @RequestParam(defaultValue = "default") String conversationId) {
-        conversationService.touch(conversationId);   // 마지막 대화 시각 갱신
+            @RequestParam(defaultValue = "default") String conversationId,
+            Authentication authentication) {
+        conversationService.touch(conversationId, authentication.getName());   // 마지막 대화 시각 갱신
         return ollamaClient.prompt()
                 .user(message)
                 // 대화 id에 따라 매칭
@@ -37,8 +39,9 @@ public class ChatController {
             produces = MediaType.TEXT_EVENT_STREAM_VALUE + ";charset=UTF-8")
     public Flux<String> chatStream(
             @RequestParam String message,
-            @RequestParam(defaultValue = "default") String conversationId) {
-        conversationService.touch(conversationId);   // 마지막 대화 시각 갱신
+            @RequestParam(defaultValue = "default") String conversationId,
+            Authentication authentication) {
+        conversationService.touch(conversationId, authentication.getName());   // 마지막 대화 시각 갱신
         return ollamaClient.prompt()
                 .user(message)
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, conversationId))

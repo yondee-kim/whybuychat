@@ -5,6 +5,7 @@ import com.whybuy.ai.airouter.chat.conversation.entity.Conversation;
 import com.whybuy.ai.airouter.chat.conversation.service.ConversationService;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.Message;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,16 +22,17 @@ public class ConversationController {
         this.chatMemory = chatMemory;
     }
 
-    // 방 목록 조회 - GET /conversations
+    // 내 방 목록 조회 - GET /conversations
     @GetMapping
-    public List<Conversation> list() {
-        return conversationService.getConversations();
+    public List<Conversation> list(Authentication authentication) {
+        return conversationService.getConversations(authentication.getName());
     }
 
     // 새 방 생성 - POST /conversations
     @PostMapping
-    public Conversation create(@RequestParam(required = false) String title) {
-        return conversationService.createConversation(title);
+    public Conversation create(@RequestParam(required = false) String title,
+                               Authentication authentication) {
+        return conversationService.createConversation(title, authentication.getName());
     }
 
     // 특정 방의 지난 메시지 조회 - GET /conversations/{id}/messages
@@ -46,13 +48,15 @@ public class ConversationController {
 
     // 대화방 삭제 - DELETE /conversations/{id}
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable String id) {
-        conversationService.deleteConversation(id);
+    public void delete(@PathVariable String id, Authentication authentication) {
+        conversationService.deleteConversation(id, authentication.getName());
     }
 
     // 대화방 이름 변경 - PATCH /conversations/{id}
     @PatchMapping("/{id}")
-    public Conversation rename(@PathVariable String id, @RequestParam String title) {
-        return conversationService.rename(id, title);
+    public Conversation rename(@PathVariable String id,
+                               @RequestParam String title,
+                               Authentication authentication) {
+        return conversationService.rename(id, authentication.getName(), title);
     }
 }

@@ -21,38 +21,43 @@ public class ConversationService {
     }
 
     // 새 대화방 생성
-    public Conversation createConversation(String title) {
+    public Conversation createConversation(String title, String ownerEmail) {
         // 고유한 방 id 생성
         String id = UUID.randomUUID().toString();
         String roomTitle = (title == null || title.isBlank()) ? "새 대화" : title;
-        Conversation conversation = new Conversation(id, roomTitle);
+        Conversation conversation = new Conversation(id, roomTitle, ownerEmail);
         return conversationRepository.save(conversation);
     }
 
     // 전체 방 목록 (최근 대화순)
-    public List<Conversation> getConversations() {
-        return conversationRepository.findAllByOrderByUpdatedAtDesc();
+    public List<Conversation> getConversations(String ownerEmail) {
+        return conversationRepository.findByOwnerEmailOrderByUpdatedAtDesc(ownerEmail);
     }
 
     // 대화가 오갈 때 해당 방의 '마지막 시각' 갱신
-    public void touch(String conversationId) {
-        conversationRepository.findById(conversationId).ifPresent(c -> {
-            c.touch();
-            conversationRepository.save(c);
-        });
+    public void touch(String conversationId, String ownerEmail) {
+        conversationRepository.findByIdAndOwnerEmail(conversationId, ownerEmail)
+            .ifPresent(c -> {
+                c.touch();
+                conversationRepository.save(c);
+            });
     }
 
     // 대화방 삭제 - 방 정보 + 대화 내용 함께 삭제
     @Transactional
-    public void deleteConversation(String conversationId) {
+    public void deleteConversation(String conversationId, String ownerEmail) {
+        Conversation conversation = conversationRepository
+                .findByIdAndOwnerEmail(conversationId, ownerEmail)
+                .orElseThrow(() -> new IllegalArgumentException("대화방을 찾을 수 없습니다."));
         chatMemory.clear(conversationId);                 // 대화 내용 삭제
         conversationRepository.deleteById(conversationId); // 방 정보 삭제
     }
 
     // 대화방 이름 변경
-    public Conversation rename(String conversationId, String newTitle) {
-        Conversation conversation = conversationRepository.findById(conversationId)
-                .orElseThrow(() -> new IllegalArgumentException("방을 찾을 수 없습니다: " + conversationId));
+    public Conversation rename(String conversationId, String ownerEmail, String newTitle) {
+        Conversation conversation = conversationRepository
+                .findByIdAndOwnerEmail(conversationId, ownerEmail)
+                .orElseThrow(() -> new IllegalArgumentException("대화방을 찾을 수 없습니다: " + conversationId));
         conversation.setTitle(newTitle);
         return conversationRepository.save(conversation);
     }

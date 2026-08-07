@@ -23,6 +23,9 @@ public class Conversation {
     @Column(nullable = false)
     private String title;           // 방 이름
 
+    @Column(name = "owner_email", nullable = false)
+    private String ownerEmail;     // 방 주인 (이 방을 만든 사용자의 email)
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -30,9 +33,10 @@ public class Conversation {
     private LocalDateTime updatedAt;
 
     // 방 생성용 편의 생성자
-    public Conversation(String id, String title) {
+    public Conversation(String id, String title, String ownerEmail) {
         this.id = id;
         this.title = title;
+        this.ownerEmail = ownerEmail;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
