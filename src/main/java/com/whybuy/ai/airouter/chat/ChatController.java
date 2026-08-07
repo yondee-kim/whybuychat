@@ -1,5 +1,6 @@
 package com.whybuy.ai.airouter.chat;
 
+import com.whybuy.ai.airouter.chat.conversation.service.ConversationService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.http.MediaType;
@@ -10,9 +11,11 @@ import reactor.core.publisher.Flux;
 public class ChatController {
 
     private final ChatClient ollamaClient;
+    private final ConversationService conversationService;
 
-    public ChatController(ChatClient ollamaClient) {
+    public ChatController(ChatClient ollamaClient, ConversationService conversationService) {
         this.ollamaClient = ollamaClient;
+        this.conversationService = conversationService;
     }
 
     // 기존 - 한 번에 응답
@@ -20,9 +23,10 @@ public class ChatController {
     public String chat(
             @RequestParam String message,
             @RequestParam(defaultValue = "default") String conversationId) {
+        conversationService.touch(conversationId);   // 마지막 대화 시각 갱신
         return ollamaClient.prompt()
                 .user(message)
-                // 대화 ID에 따라 이력 매칭
+                // 대화 id에 따라 매칭
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, conversationId))
                 .call()
                 .content();
@@ -34,6 +38,7 @@ public class ChatController {
     public Flux<String> chatStream(
             @RequestParam String message,
             @RequestParam(defaultValue = "default") String conversationId) {
+        conversationService.touch(conversationId);   // 마지막 대화 시각 갱신
         return ollamaClient.prompt()
                 .user(message)
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, conversationId))
