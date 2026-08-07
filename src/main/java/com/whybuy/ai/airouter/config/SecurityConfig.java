@@ -1,5 +1,7 @@
 package com.whybuy.ai.airouter.config;
 
+import com.whybuy.ai.airouter.config.jwt.JwtAuthenticationFilter;
+import com.whybuy.ai.airouter.config.jwt.JwtProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -8,9 +10,16 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
+
+    private final JwtProvider jwtProvider;
+
+    public SecurityConfig(JwtProvider jwtProvider) {
+        this.jwtProvider = jwtProvider;
+    }
 
     // 비밀번호 암호화 도구
     @Bean
@@ -36,6 +45,12 @@ public class SecurityConfig {
                         .requestMatchers("/", "/chat.html", "/stream.html").permitAll()
                         // 나머지는 인증 필요
                         .anyRequest().authenticated()
+                )
+                // JWT 필터를 Security 기본 필터 앞에 끼워넣음
+                // - 요청이 Security 규칙 검사에 도달하기 전에 토큰을 확인해서 인증 표시를 함
+                .addFilterBefore(
+                        new JwtAuthenticationFilter(jwtProvider),
+                        UsernamePasswordAuthenticationFilter.class
                 );
         return http.build();
     }
