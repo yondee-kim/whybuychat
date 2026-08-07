@@ -12,3 +12,12 @@ spring:
         repository:
           jdbc:
             initialize-schema: always
+  jpa:
+    hibernate:
+      # 개발용 설정(운영에서는 제외)
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    # JPA가 실행하는 SQL을 콘솔에 보여줌
+    show-sql: true

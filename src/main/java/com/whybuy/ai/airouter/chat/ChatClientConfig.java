@@ -1,4 +1,4 @@
-package com.whybuy.ai.airouter.chat.config;
+package com.whybuy.ai.airouter.chat;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
