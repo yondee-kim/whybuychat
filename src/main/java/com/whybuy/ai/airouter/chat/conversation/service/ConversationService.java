@@ -46,4 +46,12 @@ public class ConversationService {
         chatMemory.clear(conversationId);                 // 대화 내용 삭제
         conversationRepository.deleteById(conversationId); // 방 정보 삭제
     }
+
+    // 대화방 이름 변경
+    public Conversation rename(String conversationId, String newTitle) {
+        Conversation conversation = conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new IllegalArgumentException("방을 찾을 수 없습니다: " + conversationId));
+        conversation.setTitle(newTitle);
+        return conversationRepository.save(conversation);
+    }
 }

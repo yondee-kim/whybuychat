@@ -49,4 +49,10 @@ public class ConversationController {
     public void delete(@PathVariable String id) {
         conversationService.deleteConversation(id);
     }
+
+    // 대화방 이름 변경 - PATCH /conversations/{id}
+    @PatchMapping("/{id}")
+    public Conversation rename(@PathVariable String id, @RequestParam String title) {
+        return conversationService.rename(id, title);
+    }
 }
