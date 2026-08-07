@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>스트리밍 테스트</title>
+</head>
+<body>
+<input id="msg" value="우주에 대해 길게 설명해줘" style="width:400px">
+<button onclick="send()">전송</button>
+<div id="output" style="white-space:pre-wrap; margin-top:20px;"></div>
+
+<script>
+    function send() {
+        const msg = document.getElementById('msg').value;
+        const output = document.getElementById('output');
+        output.textContent = '';
+
+        const url = '/chat/stream?message=' + encodeURIComponent(msg) + '&conversationId=web1';
+        const es = new EventSource(url);
+
+        es.onmessage = (e) => {
+            output.textContent += e.data;   // 조각을 누적
+        };
+        es.onerror = () => es.close();       // 끝나면 닫기
+    }
+</script>
+</body>
+</html>
