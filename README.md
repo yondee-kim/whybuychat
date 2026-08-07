@@ -9,7 +9,6 @@
 - 대화 맥락 기억 (conversationId 단위)
 - 스트리밍 응답 (SSE)
 - 대화방 CRUD (생성 / 목록 / 이름 변경 / 삭제)
-- 대화방 CRUD (생성 / 목록 / 이름 변경 / 삭제)
 - 대화방별 지난 대화 복원
 - 대화 내용 DB 영구 저장
 
@@ -63,7 +62,7 @@ AI 모델을 하나로 고정하지 않고, ChatModel Bean을 provider별로 분
 대화 기억을 InMemory → JDBC(H2) → PostgreSQL로 바꾸는 과정에서, ChatMemory 추상화 덕분에 저장소만 교체하고 상위 로직(컨트롤러·어드바이저)은 손대지 않음. DB 전환을 설정 변경만으로 처리.
 
 **계층별 테스트 전략**
-Service는 단위 테스트(Mockito), Controller는 웹 계층 테스트(@WebMvcTest + MockMvc), Repository는 DB 테스트(@DataJpaTest + H2)로 각 계층을 알맞은 방식으로 검증. CI에 연결해 회귀를 자동으로 방지.
+Service는 단위 테스트(Mockito), Controller는 웹 계층 테스트(@SpringBootTest + MockMvc), Repository는 DB 테스트(@DataJpaTest + H2)로 각 계층을 알맞은 방식으로 검증. CI에 연결해 회귀를 자동으로 방지.
 
 **MVC 위에서의 SSE 스트리밍**
 전체를 WebFlux로 바꾸지 않고, MVC에서 Flux 반환으로 특정 엔드포인트만 스트리밍 처리. 클라이언트는 EventSource로 조각을 누적해 렌더링.
@@ -99,3 +98,7 @@ Ollama가 GPU를 잡으려 했으나, 그래픽 카드의 VRAM 부족과 드라�
 - 테스트 Mock 어노테이션 @MockBean 제거 → @MockitoBean으로 대체
 - 테스트 슬라이스가 별도 스타터로 모듈화됨 → spring-boot-starter-webmvc-test, spring-boot-starter-data-jpa-test를 추가
 - 테스트 슬라이스 패키지 재배치 → WebMvcTest, DataJpaTest의 import 경로를 신규 위치로 변경
+
+**@WebMvcTest에서 Spring Security 인증 주입 실패**
+사용자별 격리 도입 후 컨트롤러가 Authentication을 받도록 바꾸자, @WebMvcTest에서 인증이 주입되지 않아(authentication null) 테스트가 실패. Spring Boot 4의 @WebMvcTest가 커스텀 SecurityConfig를 자동 로드하지 않는 것이 원인.
+→ 여러 방식(@WithMockUser, .with(user()), @Import, addFilters=false)을 시도한 끝에, 전체 컨텍스트를 로드하는 @SpringBootTest + @AutoConfigureMockMvc로 전환해 해결. (상세 과정은 docs/troubleshooting-webmvctest.md)
